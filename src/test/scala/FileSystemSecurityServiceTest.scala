@@ -41,8 +41,17 @@ class FileSystemSecurityServiceTest extends SpecificationWithJUnit with Mockito 
     // Following tests are for the second checkpoint
     "find cloud services for entries that has no domain" in new Context {
       val securityService = aSecurityServiceFor("src/test/resources/firewall_test_file_7.log")
-      givenReverseDNSLookupIs("aws.amazon.com") // Mocking the reverse DNS lookup since it's not stable - we want the test result to the consistent
+      givenReverseDNSLookupIs("aws.amazon.com")
       securityService.getCloudServiceUsage() mustEqual Map("AWS" -> Set("11.11.11.84"))
+    }
+
+    "cache results from reverse DNS lookup" in new Context {
+      val securityService = aSecurityServiceFor("src/test/resources/firewall_test_file_7.log")
+      givenReverseDNSLookupIs("aws.amazon.com")
+      securityService.getCloudServiceUsage() mustEqual Map("AWS" -> Set("11.11.11.84"))
+      securityService.getCloudServiceUsage() mustEqual Map("AWS" -> Set("11.11.11.84"))
+
+      there was one(DNSProviderSpy).getDomainFromIP(any())
     }
 
   }
@@ -51,14 +60,15 @@ class FileSystemSecurityServiceTest extends SpecificationWithJUnit with Mockito 
 
 trait Context extends Scope {
 
-  val fakeDNSDomainProvider = mock[DNSDomainProvider]
+  // Mocking the reverse DNS lookup since it's not stable - we want the test result to the consistent
+  val DNSProviderSpy = mock[DNSDomainProvider]
 
   def givenReverseDNSLookupIs(domain: String) =
-    fakeDNSDomainProvider.getDomainFromIP(any()) returns Some(domain)
+    DNSProviderSpy.getDomainFromIP(any()) returns Some(domain)
 
   def aSecurityServiceFor(firewallPath: String): FileSystemSecurityService =
     new FileSystemSecurityService(
       maybePathToFirewallLogFile = Some(firewallPath),
-      maybeDNSDomainProvider = Some(fakeDNSDomainProvider)
+      maybeDNSDomainProvider = Some(DNSProviderSpy)
     )
 }

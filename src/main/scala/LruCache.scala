@@ -4,7 +4,6 @@ import java.util.concurrent.TimeUnit
 
 class LruCache[K <: AnyRef, V <: AnyRef](maxSize: Long, expireAfterWriteMinutes: Long) {
 
-  // Create the cache using Guava's CacheBuilder
   private val cache: Cache[K, V] = CacheBuilder.newBuilder()
     .maximumSize(maxSize)
     .expireAfterWrite(expireAfterWriteMinutes, TimeUnit.MINUTES)
