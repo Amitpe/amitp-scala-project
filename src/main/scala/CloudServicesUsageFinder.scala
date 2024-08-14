@@ -9,14 +9,15 @@ class CloudServicesUsageFinder(DNSService: DNSService,
   private val parser = new FirewallParser()
 
   private val domainToServiceName: Map[String, String] = csvReader.provideCloudServicesMap()
-  private val cloudNameToUniqueIps: mutable.Map[String, mutable.Set[String]] = mutable.Map.empty
+  private val cloudServicesToUniqueIps: mutable.Map[String, mutable.Set[String]] = mutable.Map.empty
+  private val EMPTY_STRING = ""
 
   def findCloudServicesUsages(): mutable.Map[CloudServiceName, mutable.Set[IP]] = {
     val firewallFileBuffer = Source.fromFile(pathToFirewallLogFile)
 
     try {
       for (line <- firewallFileBuffer.getLines()) {
-        if (line != "") {
+        if (line != EMPTY_STRING) {
           parseAndAccumulate(line)
         }
       }
@@ -24,13 +25,13 @@ class CloudServicesUsageFinder(DNSService: DNSService,
       firewallFileBuffer.close()
     }
 
-    cloudNameToUniqueIps
+    cloudServicesToUniqueIps
   }
 
   private def parseAndAccumulate(line: String): Unit = {
     parser.parseLogLine(line).foreach { logEntry =>
 
-      val domain = logEntry.domain.getOrElse(DNSService.getDomainFromIP(logEntry.cloudIp).getOrElse(""))
+      val domain = logEntry.domain.getOrElse(DNSService.getDomainFromIP(logEntry.cloudIp).getOrElse(EMPTY_STRING))
 
       domainToServiceName
         .get(domain)
@@ -39,7 +40,7 @@ class CloudServicesUsageFinder(DNSService: DNSService,
   }
 
   def addIpToCloud(cloudName: String, ip: IP): Unit = {
-    val ips: mutable.Set[CloudServiceName] = cloudNameToUniqueIps.getOrElseUpdate(cloudName, mutable.Set.empty)
+    val ips: mutable.Set[CloudServiceName] = cloudServicesToUniqueIps.getOrElseUpdate(cloudName, mutable.Set.empty)
     ips += ip
   }
 
