@@ -30,6 +30,11 @@ class FileSystemSecurityServiceTest extends SpecificationWithJUnit {
       securityService.findCloudServicesUsages() mustEqual Map("AWS" -> Set("11.11.11.84"), "Dropbox" -> Set("192.150.249.87"))
     }
 
+    "provide DISTINCT IPs" in new Context {
+      val securityService = new CloudServicesUsageFinder("src/test/resources/firewall_test_file_6.log")
+      securityService.findCloudServicesUsages() mustEqual Map("AWS" -> Set("11.11.11.84"), "Dropbox" -> Set("192.150.249.87"))
+    }
+
   }
 
 }

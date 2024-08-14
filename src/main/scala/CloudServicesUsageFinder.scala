@@ -37,7 +37,7 @@ class CloudServicesUsageFinder(pathToFirewallLogFile: String) {
   }
 
   def addIpToCloud(cloudName: String, ip: IP): Unit = {
-    val ips = cloudNameToUniqueIps.getOrElseUpdate(cloudName, mutable.Set.empty)
+    val ips: mutable.Set[CloudServiceName] = cloudNameToUniqueIps.getOrElseUpdate(cloudName, mutable.Set.empty)
     ips += ip
   }
 
