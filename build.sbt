@@ -29,6 +29,7 @@ libraryDependencies ++= Seq(
   "org.scalaj" %% "scalaj-http" % "2.4.1"
 )
 
+libraryDependencies += "com.github.tototoshi" %% "scala-csv" % "1.3.10"
 
 // Configure test framework
 testOptions in Test += Tests.Argument(TestFrameworks.JUnit, "-v")

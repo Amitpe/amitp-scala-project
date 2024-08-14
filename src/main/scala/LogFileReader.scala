@@ -1,7 +1,7 @@
 import java.nio.file.{Files, Paths}
 import java.nio.charset.StandardCharsets
 
-object LogFileReader extends App {
+object LogFileReader {
   val filename = "src/main/resources/log.text"
 
   // Read all lines from the file
