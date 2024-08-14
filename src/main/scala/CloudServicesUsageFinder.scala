@@ -42,7 +42,7 @@ class CloudServicesUsageFinder(firewallFileName: String) {
     // Extract IP based on direction
     val ip = direction match {
       case "INBOUND" => parts.find(_.startsWith("DST=")).map(_.split("=")(1))
-      case "OUTG CONN" => parts.find(_.startsWith("SRC=")).map(_.split("=")(1))
+      case "OUTG" => parts.find(_.startsWith("SRC=")).map(_.split("=")(1))
       case _ => None
     }
 
