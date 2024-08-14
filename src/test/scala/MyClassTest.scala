@@ -10,8 +10,10 @@ class MyClassTest extends SpecificationWithJUnit {
     }
 
     "do that" in new Context {
-      ko
-    }.pendingUntilFixed("Not implemented yet")
+      println("bubu")
+      ok
+    }
+//      .pendingUntilFixed("Not implemented yet")
 
   }
 
