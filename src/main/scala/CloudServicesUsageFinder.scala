@@ -5,21 +5,22 @@ import scala.io.Source
 import scala.util.matching.Regex
 
 class CloudServicesUsageFinder(firewallFileName: String) {
-  val csvReader = new CloudServicesCSVProvider()
-  val domainToServiceName: Map[String, String] = csvReader.provideCloudServicesMap()
-  val cloudNameToUniqueIps: mutable.Map[String, mutable.Set[String]] = mutable.Map.empty
+  private val csvReader = new CloudServicesCSVProvider()
+  private val domainToServiceName: Map[String, String] = csvReader.provideCloudServicesMap()
+  private val cloudNameToUniqueIps: mutable.Map[String, mutable.Set[String]] = mutable.Map.empty
 
   def findCloudServicesUsages(): mutable.Map[CloudServiceName, mutable.Set[IP]] = {
     val firewallFileBuffer = Source.fromFile(firewallFileName)
-    println(firewallFileBuffer)
 
     try {
       for (line <- firewallFileBuffer.getLines()) {
         if (line != "") {
           parseLogLine(line).foreach { logEntry =>
             val domain = logEntry.domain.get // handle case not found
-            val cloudName = domainToServiceName(domain) // handle case not found
-            addIpToCloud(cloudName, logEntry.internalIp)
+
+            domainToServiceName
+              .get(domain)
+              .map(cloudName => addIpToCloud(cloudName, logEntry.internalIp))
           }
         }
       }
@@ -52,7 +53,6 @@ class CloudServicesUsageFinder(firewallFileName: String) {
     ip.map(LogEntry(_, domain))
   }
 
-  // Function to parse a log line and return a LogEntry
   def parseLogLineRegex(line: String): Option[LogEntry] = {
     // Regular expression to extract the DST IP
     val outboundPattern: Regex = """OUTG CONN.*?SRC=(\d+\.\d+\.\d+\.\d+).*?DOMAIN=([^ ]+)""".r

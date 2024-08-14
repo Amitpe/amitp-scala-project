@@ -20,8 +20,13 @@ class CloudServicesUsageDetectorTest extends SpecificationWithJUnit {
       cloudServiceUsageFinder.findCloudServicesUsages() mustEqual Map("AWS" -> Set("11.11.11.84"), "Dropbox" -> Set("192.150.249.87"))
     }
 
-    "work when there are entries with neither OUTGOING nor INGOING" in new Context {
+    "ignore entries that are neither OUTGOING nor INGOING" in new Context {
       val cloudServiceUsageFinder = new CloudServicesUsageFinder("src/test/resources/firewall_test_file_4.log")
+      cloudServiceUsageFinder.findCloudServicesUsages() mustEqual Map("AWS" -> Set("11.11.11.84"), "Dropbox" -> Set("192.150.249.87"))
+    }
+
+    "ignore entries that has a domain which is not found in the provided CSV" in new Context {
+      val cloudServiceUsageFinder = new CloudServicesUsageFinder("src/test/resources/firewall_test_file_5.log")
       cloudServiceUsageFinder.findCloudServicesUsages() mustEqual Map("AWS" -> Set("11.11.11.84"), "Dropbox" -> Set("192.150.249.87"))
     }
 
