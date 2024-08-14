@@ -37,8 +37,20 @@ class CloudServicesUsageFinder(firewallFileName: String) {
   }
 
   def parseLogLine(line: String): Option[LogEntry] = {
-    val parts = line.split(" ")
-    val direction = parts(6) // Should be INBOUND or OUTG CONN
+    // Ensure the line contains 'kernel'
+    if (!line.contains("kernel")) return None
+
+    // Find the part of the line starting after 'kernel'
+    val kernelIndex = line.indexOf("kernel") + "kernel: ".length
+    val restOfLine = line.substring(kernelIndex)
+
+    // Find the direction (INBOUND or OUTG CONN)
+    val direction = if (restOfLine.contains("INBOUND")) "INBOUND"
+    else if (restOfLine.contains("OUTG CONN")) "OUTG"
+    else ""
+
+    // Split the rest of the line by spaces to extract IP and domain
+    val parts = restOfLine.split(" ")
 
     // Extract IP based on direction
     val ip = direction match {
