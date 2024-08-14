@@ -20,6 +20,11 @@ class CloudServicesUsageDetectorTest extends SpecificationWithJUnit {
       cloudServiceUsageFinder.findCloudServicesUsages() mustEqual Map("AWS" -> Set("11.11.11.84"), "Dropbox" -> Set("192.150.249.87"))
     }
 
+    "work when there are entries with neither OUTGOING nor INGOING" in new Context {
+      val cloudServiceUsageFinder = new CloudServicesUsageFinder("src/test/resources/firewall_test_file_4.log")
+      cloudServiceUsageFinder.findCloudServicesUsages() mustEqual Map("AWS" -> Set("11.11.11.84"), "Dropbox" -> Set("192.150.249.87"))
+    }
+
   }
 
 }

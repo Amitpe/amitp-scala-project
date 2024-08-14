@@ -13,14 +13,14 @@ class CloudServicesUsageFinder(firewallFileName: String) {
     val firewallFileBuffer = Source.fromFile(firewallFileName)
     println(firewallFileBuffer)
 
-
     try {
       for (line <- firewallFileBuffer.getLines()) {
         if (line != "") {
-          val logEntry = parseLogLine(line).get // handle case not found
-          val domain = logEntry.domain.get // handle case not found
-          val cloudName = domainToServiceName(domain) // handle case not found
-          addIpToCloud(cloudName, logEntry.internalIp)
+          val logEntry = parseLogLine(line).map { logEntry =>
+            val domain = logEntry.domain.get // handle case not found
+            val cloudName = domainToServiceName(domain) // handle case not found
+            addIpToCloud(cloudName, logEntry.internalIp)
+          }
         }
       }
     } finally {
