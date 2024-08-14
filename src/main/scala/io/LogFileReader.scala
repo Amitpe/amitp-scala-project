@@ -1,5 +1,7 @@
-import java.nio.file.{Files, Paths}
+package io
+
 import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Paths}
 
 object LogFileReader {
   val filename = "src/main/resources/log.text"

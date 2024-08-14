@@ -1,4 +1,4 @@
-
+import common.LruCache
 
 trait DNSService {
   def getDomainFromIP(ip: String): Option[String]

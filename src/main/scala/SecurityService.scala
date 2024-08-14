@@ -1,5 +1,6 @@
 import FileSystemSecurityService.{DEFAULT_CACHE_SIZE, DEFAULT_DNS_DOMAIN_PROVIDER, DEFAULT_EXPIRE_AFTER_WRITE_MINUTES, DEFAULT_PATH_TO_FIREWALL_LOG_FILE}
 import Types.{CloudServiceName, IP}
+import common.LruCache
 
 import scala.collection.mutable
 

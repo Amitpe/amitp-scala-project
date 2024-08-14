@@ -1,3 +1,5 @@
+package common
+
 import com.google.common.cache.{Cache, CacheBuilder}
 
 import java.util.concurrent.TimeUnit

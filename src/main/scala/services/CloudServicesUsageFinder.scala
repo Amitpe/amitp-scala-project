@@ -1,4 +1,5 @@
 import Types.{CloudServiceName, IP}
+import io.CloudServicesCSVProvider
 
 import scala.collection.mutable
 import scala.io.Source
