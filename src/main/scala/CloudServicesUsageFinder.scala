@@ -16,7 +16,7 @@ class CloudServicesUsageFinder(firewallFileName: String) {
     try {
       for (line <- firewallFileBuffer.getLines()) {
         if (line != "") {
-          val logEntry = parseLogLine(line).map { logEntry =>
+          parseLogLine(line).foreach { logEntry =>
             val domain = logEntry.domain.get // handle case not found
             val cloudName = domainToServiceName(domain) // handle case not found
             addIpToCloud(cloudName, logEntry.internalIp)
