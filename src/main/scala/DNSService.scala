@@ -4,11 +4,11 @@ trait DNSService {
   def getDomainFromIP(ip: String): Option[String]
 }
 
-class CachingDNSService(DNSDomainProvider: DNSDomainProvider) extends DNSService {
+class CachingDNSService(DNSDomainProvider: DNSDomainProvider,
+                        cache: LruCache[String, Option[String]]) extends DNSService {
 
   override def getDomainFromIP(ip: String): Option[String] = {
-    // TODO - add caching layer here using GUAVA cache
-    DNSDomainProvider.getDomainFromIP(ip)
+    cache.getOrElseUpdate(ip, () => DNSDomainProvider.getDomainFromIP(ip))
   }
 
 }

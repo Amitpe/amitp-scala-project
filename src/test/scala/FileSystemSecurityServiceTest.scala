@@ -41,7 +41,7 @@ class FileSystemSecurityServiceTest extends SpecificationWithJUnit with Mockito 
     // Following tests are for the second checkpoint
     "find cloud services for entries that has no domain" in new Context {
       val securityService = aSecurityServiceFor("src/test/resources/firewall_test_file_7.log")
-      givenReverseDNSLookupIs("aws.amazon.com")
+      givenReverseDNSLookupIs("aws.amazon.com") // Mocking the reverse DNS lookup since it's not stable - we want the test result to the consistent
       securityService.getCloudServiceUsage() mustEqual Map("AWS" -> Set("11.11.11.84"))
     }
 

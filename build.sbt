@@ -31,6 +31,9 @@ libraryDependencies ++= Seq(
 
 libraryDependencies += "com.github.tototoshi" %% "scala-csv" % "1.3.10"
 
+libraryDependencies += "com.google.guava" % "guava" % "32.0.1-jre" // or the latest version
+
+
 // Configure test framework
 testOptions in Test += Tests.Argument(TestFrameworks.JUnit, "-v")
 
