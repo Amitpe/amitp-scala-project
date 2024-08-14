@@ -9,6 +9,7 @@ hs_err_pid*
 
 # SBT files
 project/target/
+project/target/streams/
 target/
 project/project/
 
@@ -20,3 +21,4 @@ project/project/
 out/
 *.tmp
 *.swp
+
