@@ -32,3 +32,5 @@ libraryDependencies ++= Seq(
 
 // Configure test framework
 testOptions in Test += Tests.Argument(TestFrameworks.JUnit, "-v")
+
+mainClass in Compile := Some("Main")
