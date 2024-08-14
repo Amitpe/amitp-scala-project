@@ -3,7 +3,8 @@ import Types.{CloudServiceName, IP}
 import scala.collection.mutable
 import scala.io.Source
 
-class CloudServicesUsageFinder(pathToFirewallLogFile: String) {
+class CloudServicesUsageFinder(DNSService: DNSService,
+                               pathToFirewallLogFile: String) {
   private val csvReader = new CloudServicesCSVProvider()
   private val parser = new FirewallParser()
 
@@ -28,11 +29,12 @@ class CloudServicesUsageFinder(pathToFirewallLogFile: String) {
 
   private def parseAndAccumulate(line: String): Unit = {
     parser.parseLogLine(line).foreach { logEntry =>
-      val domain = logEntry.domain.get // TODO: handle case not found
+
+      val domain = logEntry.domain.getOrElse(DNSService.getDomainFromIP(logEntry.cloudIp).getOrElse(""))
 
       domainToServiceName
         .get(domain)
-        .map(cloudName => addIpToCloud(cloudName, logEntry.internalIp))
+        .map(cloudName => addIpToCloud(cloudName, logEntry.userIp))
     }
   }
 
@@ -41,10 +43,11 @@ class CloudServicesUsageFinder(pathToFirewallLogFile: String) {
     ips += ip
   }
 
+
 }
 
 
-case class LogEntry(internalIp: String, domain: Option[String])
+case class LogEntry(userIp: String, cloudIp: String, domain: Option[String])
 
 object Types {
   type CloudServiceName = String

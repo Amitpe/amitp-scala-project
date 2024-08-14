@@ -20,16 +20,29 @@ class FirewallParser extends Parser {
     val parts = restOfLine.split(" ")
 
     // Extract IP based on direction
-    val ip = direction match {
-      case "INBOUND" => parts.find(_.startsWith("DST=")).map(_.split("=")(1))
-      case "OUTG" => parts.find(_.startsWith("SRC=")).map(_.split("=")(1))
-      case _ => None
+    val (userIp, cloudIp) = direction match {
+      case "INBOUND" =>
+        (
+          parts.find(_.startsWith("DST=")).map(_.split("=")(1)),
+          parts.find(_.startsWith("SRC=")).map(_.split("=")(1))
+        )
+      case "OUTG" =>
+        (
+          parts.find(_.startsWith("SRC=")).map(_.split("=")(1)),
+          parts.find(_.startsWith("DST=")).map(_.split("=")(1)),
+        )
+      case _ => (None, None)
     }
 
     // Extract domain if present
     val domain = parts.find(_.startsWith("DOMAIN=")).map(_.split("=")(1))
 
-    ip.map(LogEntry(_, domain))
+    (userIp, cloudIp) match {
+      case (Some(userIp), Some(cloudIp)) =>
+        Some(LogEntry(userIp, cloudIp, domain))
+      case _ =>
+        None
+    }
   }
 
 }
