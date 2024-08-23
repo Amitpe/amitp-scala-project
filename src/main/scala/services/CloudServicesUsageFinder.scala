@@ -20,7 +20,10 @@ class CloudServicesUsageFinder(DNSService: DNSService,
     try {
       for (line <- firewallFileBuffer.getLines()) {
         if (line != EMPTY_STRING) {
-          parseAndAccumulate(line)
+          parser
+            .parseLogLine(line)
+            .filter(isEntryAllowed)
+            .foreach(accumulate)
         }
       }
     } finally {
@@ -30,17 +33,18 @@ class CloudServicesUsageFinder(DNSService: DNSService,
     cloudServicesToUniqueIps
   }
 
-  private def parseAndAccumulate(line: String): Unit = {
-    parser.parseLogLine(line).foreach { logEntry =>
+  private def isEntryAllowed(logEntry: LogEntry) = {
+    filters.isEmpty || filters.exists(filter => filter.isAllowed(logEntry))
+  }
 
-      if (filters.isEmpty || filters.exists(filter => filter.isAllowed(logEntry))) {
+  private def accumulate(logEntry: LogEntry): Unit = {
+    if (filters.isEmpty || filters.exists(filter => filter.isAllowed(logEntry))) {
 
-        val domain = logEntry.domain.getOrElse(DNSService.getDomainFromIP(logEntry.cloudIp).getOrElse(EMPTY_STRING))
+      val domain = logEntry.domain.getOrElse(DNSService.getDomainFromIP(logEntry.cloudIp).getOrElse(EMPTY_STRING))
 
-        domainToServiceName
-          .get(domain)
-          .map(cloudName => addIpToCloud(cloudName, logEntry.userIp))
-      }
+      domainToServiceName
+        .get(domain)
+        .map(cloudName => addIpToCloud(cloudName, logEntry.userIp))
     }
   }
 

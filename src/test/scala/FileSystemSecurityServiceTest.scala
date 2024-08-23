@@ -75,7 +75,7 @@ class FileSystemSecurityServiceTest extends SpecificationWithJUnit with Mockito 
       ko
     }.pendingUntilFixed("not implemented yet")
 
-    "filter by IP - exclude" in new Context {
+    "filter by IP - exclude with range" in new Context {
       ko
     }.pendingUntilFixed("not implemented yet")
 
