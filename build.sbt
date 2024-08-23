@@ -33,6 +33,7 @@ libraryDependencies += "com.github.tototoshi" %% "scala-csv" % "1.3.10"
 
 libraryDependencies += "com.google.guava" % "guava" % "32.0.1-jre" // or the latest version
 
+libraryDependencies += "io.netty" % "netty-all" % "4.1.65.Final"
 
 // Configure test framework
 testOptions in Test += Tests.Argument(TestFrameworks.JUnit, "-v")

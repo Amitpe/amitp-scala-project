@@ -54,6 +54,43 @@ class FileSystemSecurityServiceTest extends SpecificationWithJUnit with Mockito 
       there was one(DNSProviderSpy).getDomainFromIP(any())
     }
 
+    // Following tests are for the third checkpoint
+    "filter by IP - include" in new Context {
+      val securityService = aSecurityServiceFor(
+        "src/test/resources/firewall_test_file_8.log",
+        filters = Seq(new IpFilter("11.11.11.84", None ,FilterTypes.INCLUDE))
+      )
+      securityService.getCloudServiceUsage() mustEqual Map("AWS" -> Set("11.11.11.84"))
+    }
+
+    "filter by IP - include with range" in new Context {
+      val securityService = aSecurityServiceFor(
+        "src/test/resources/firewall_test_file_8.log",
+        filters = Seq(new IpFilter("11.11.11.84", range = Some(32) ,FilterTypes.INCLUDE))
+      )
+      securityService.getCloudServiceUsage() mustEqual Map("AWS" -> Set("11.11.11.84"))
+    }
+
+    "filter by IP - exclude" in new Context {
+      ko
+    }.pendingUntilFixed("not implemented yet")
+
+    "filter by IP - exclude" in new Context {
+      ko
+    }.pendingUntilFixed("not implemented yet")
+
+    "filter by user - include" in new Context {
+      ko
+    }.pendingUntilFixed("not implemented yet")
+
+    "filter by user - exclude" in new Context {
+      ko
+    }.pendingUntilFixed("not implemented yet")
+
+    "filter multiple kind of filters" in new Context {
+      ko
+    }.pendingUntilFixed("not implemented yet")
+
   }
 
 }
@@ -66,9 +103,11 @@ trait Context extends Scope {
   def givenReverseDNSLookupIs(domain: String) =
     DNSProviderSpy.getDomainFromIP(any()) returns Some(domain)
 
-  def aSecurityServiceFor(firewallPath: String): FileSystemSecurityService =
+  def aSecurityServiceFor(firewallPath: String,
+                          filters: Seq[Filter] = Nil): FileSystemSecurityService =
     new FileSystemSecurityService(
       maybePathToFirewallLogFile = Some(firewallPath),
-      maybeDNSDomainProvider = Some(DNSProviderSpy)
+      maybeDNSDomainProvider = Some(DNSProviderSpy),
+      maybeFilters = Some(filters)
     )
 }

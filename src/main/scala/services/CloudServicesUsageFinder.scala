@@ -5,6 +5,7 @@ import scala.collection.mutable
 import scala.io.Source
 
 class CloudServicesUsageFinder(DNSService: DNSService,
+                               filters: Seq[Filter],
                                pathToFirewallLogFile: String) {
   private val csvReader = new CloudServicesCSVProvider()
   private val parser = new FirewallParser()
@@ -32,11 +33,14 @@ class CloudServicesUsageFinder(DNSService: DNSService,
   private def parseAndAccumulate(line: String): Unit = {
     parser.parseLogLine(line).foreach { logEntry =>
 
-      val domain = logEntry.domain.getOrElse(DNSService.getDomainFromIP(logEntry.cloudIp).getOrElse(EMPTY_STRING))
+      if (filters.isEmpty || filters.exists(filter => filter.isAllowed(logEntry))) {
 
-      domainToServiceName
-        .get(domain)
-        .map(cloudName => addIpToCloud(cloudName, logEntry.userIp))
+        val domain = logEntry.domain.getOrElse(DNSService.getDomainFromIP(logEntry.cloudIp).getOrElse(EMPTY_STRING))
+
+        domainToServiceName
+          .get(domain)
+          .map(cloudName => addIpToCloud(cloudName, logEntry.userIp))
+      }
     }
   }
 
