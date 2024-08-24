@@ -78,14 +78,16 @@ class FileSystemSecurityServiceTest extends SpecificationWithJUnit with Mockito 
       )
     }
 
-
     // Following tests are for the second checkpoint
-    "find cloud services for entries that has no domain" in new Context {
-      val securityService = aSecurityServiceFor(Some("src/test/resources/firewall_test_file_7.log"), parser = new FirewallParser())
+    "find cloud services for entries that has no domain, by performing DNS reverse lookup" in new Context {
+      val securityService = aSecurityServiceFor()
       givenReverseDNSLookupIs("aws.amazon.com")
-      securityService.getCloudServiceUsage() mustEqual Map("AWS" -> Set("11.11.11.84"))
+      val logEntry = givenLogEntry(aLogEntry(domain = None))
+      securityService.getCloudServiceUsage() mustEqual Map("AWS" -> Set(logEntry.userIp))
     }
 
+    // TODO - those tests still read log file, we should refactor to use the mocks as the tests above
+    // TODO - still need to write an E2E test class that will read a log file
     "cache results from reverse DNS lookup" in new Context {
       val securityService = aSecurityServiceFor(Some("src/test/resources/firewall_test_file_7.log"), parser = new FirewallParser())
       givenReverseDNSLookupIs("aws.amazon.com")
@@ -102,6 +104,7 @@ class FileSystemSecurityServiceTest extends SpecificationWithJUnit with Mockito 
         parser = new FirewallParser(),
         filters = Seq(IpFilter("11.11.11.84", filterType = FilterTypes.INCLUDE))
       )
+
       securityService.getCloudServiceUsage() mustEqual Map("AWS" -> Set("11.11.11.84"))
     }
 
@@ -182,10 +185,6 @@ class FileSystemSecurityServiceTest extends SpecificationWithJUnit with Mockito 
       )
       securityService.getCloudServiceUsage() mustEqual Map("AWS" -> Set("11.11.11.87", "11.11.11.89"))
     }
-
-    //    "filter by IP should not accept invalid filters" in new Context {
-    //
-    //    }
 
   }
 
