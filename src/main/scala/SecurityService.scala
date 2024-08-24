@@ -1,7 +1,7 @@
 import FileSystemSecurityService._
-import common.{Filter, LruCache}
+import common.{Filter, FirewallParser, LruCache, Parser}
 import filter.CombinedFilter
-import io.{DNSDomainProvider, JavaInetDNSDomainProvider}
+import io.{DNSDomainProvider, FileReader, JavaInetDNSDomainProvider, LogFileReader}
 import api.Types.{CloudServiceName, IP}
 import services.{CachingDNSService, CloudServicesUsageFinder}
 
@@ -26,8 +26,10 @@ trait SecurityService {
  */
 class FileSystemSecurityService(
                                  maybePathToFirewallLogFile: Option[String] = None,
+                                 maybeParser: Option[Parser] = None,
                                  maybeDNSDomainProvider: Option[DNSDomainProvider] = None,
-                                 maybeFilters: Option[Seq[Filter]]
+                                 maybeFilters: Option[Seq[Filter]] = None,
+                                 maybeFileReader: Option[FileReader] = None
                                ) extends SecurityService {
   private val cloudServicesUsageFinder = buildCloudServicesUsageFinder()
 
@@ -40,13 +42,15 @@ class FileSystemSecurityService(
   }
 
   private def buildCloudServicesUsageFinder(): CloudServicesUsageFinder = {
-    val pathToFirewallLogFile = maybePathToFirewallLogFile.getOrElse(DEFAULT_PATH_TO_FIREWALL_LOG_FILE)
     val DNSDomainProvider = maybeDNSDomainProvider.getOrElse(DEFAULT_DNS_DOMAIN_PROVIDER)
     val cache = new LruCache[String, Option[String]](maxSize = DEFAULT_CACHE_SIZE, expireAfterWriteMinutes = DEFAULT_EXPIRE_AFTER_WRITE_MINUTES)
     val DNSService = new CachingDNSService(DNSDomainProvider, cache)
     val filters = maybeFilters.getOrElse(DEFAULT_FILTERS)
     val combinedFilter = new CombinedFilter(filters)
-    new CloudServicesUsageFinder(DNSService, combinedFilter, pathToFirewallLogFile)
+    val parser = maybeParser.getOrElse(new FirewallParser())
+    val fileReader = maybeFileReader.getOrElse(new LogFileReader(maybePathToFirewallLogFile.getOrElse(DEFAULT_PATH_TO_FIREWALL_LOG_FILE)))
+
+    new CloudServicesUsageFinder(DNSService, combinedFilter, parser, fileReader)
   }
 }
 

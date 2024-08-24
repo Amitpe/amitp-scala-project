@@ -2,15 +2,21 @@ package io
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}
+import scala.io.Source
 
-object LogFileReader {
-  val filename = "src/main/resources/log.text"
+trait FileReader {
+  def getLines(): Iterator[String]
 
-  // Read all lines from the file
-  val lines = Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8)
+  def close(): Unit
+}
 
-  // Process each line
-  for (line <- lines.toArray) {
-    println(line.toString)  // Or perform any other processing
+class LogFileReader(path: String) extends FileReader {
+  private val bufferedIterator = Source.fromFile(path)
+
+  override def getLines(): Iterator[String] = {
+    bufferedIterator.getLines()
   }
+
+  override def close(): Unit =
+    bufferedIterator.close()
 }

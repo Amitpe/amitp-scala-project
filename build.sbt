@@ -35,7 +35,10 @@ libraryDependencies += "com.google.guava" % "guava" % "32.0.1-jre" // or the lat
 
 libraryDependencies += "io.netty" % "netty-all" % "4.1.65.Final"
 
+libraryDependencies += "org.apache.commons" % "commons-text" % "1.10.0"
+
 // Configure test framework
 testOptions in Test += Tests.Argument(TestFrameworks.JUnit, "-v")
+
 
 mainClass in Compile := Some("Main")

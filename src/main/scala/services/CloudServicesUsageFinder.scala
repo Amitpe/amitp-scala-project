@@ -2,27 +2,24 @@ package services
 
 import api.LogEntry
 import api.Types.{CloudServiceName, IP}
-import common.{Filter, FirewallParser}
-import io.CloudServicesCSVProvider
+import common.{Filter, Parser}
+import io.{CloudServicesCSVProvider, FileReader}
 
 import scala.collection.mutable
-import scala.io.Source
 
 class CloudServicesUsageFinder(DNSService: DNSService,
                                combinedFilter: Filter,
-                               pathToFirewallLogFile: String) {
+                               parser: Parser,
+                               fileReader: FileReader) {
   private val csvReader = new CloudServicesCSVProvider()
-  private val parser = new FirewallParser()
 
   private val domainToServiceName: Map[String, String] = csvReader.provideCloudServicesMap()
   private val cloudServicesToUniqueIps: mutable.Map[String, mutable.Set[String]] = mutable.Map.empty
   private val EMPTY_STRING = ""
 
   def findCloudServicesUsages(): mutable.Map[CloudServiceName, mutable.Set[IP]] = {
-    val firewallFileBuffer = Source.fromFile(pathToFirewallLogFile)
-
     try {
-      for (line <- firewallFileBuffer.getLines()) {
+      for (line <- fileReader.getLines()) {
         if (line != EMPTY_STRING) {
           parser
             .parseLogLine(line)
@@ -31,7 +28,7 @@ class CloudServicesUsageFinder(DNSService: DNSService,
         }
       }
     } finally {
-      firewallFileBuffer.close()
+      fileReader.close()
     }
 
     cloudServicesToUniqueIps
