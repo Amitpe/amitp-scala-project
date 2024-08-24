@@ -106,6 +106,14 @@ class FileSystemSecurityServiceTest extends SpecificationWithJUnit with Mockito 
       securityService.getCloudServiceUsage() mustEqual Map("AWS" -> Set("11.11.11.86"))
     }
 
+    "filter by user exclusion should not effect log entries that has no user name" in new Context {
+      val securityService = aSecurityServiceFor(
+        "src/test/resources/firewall_test_file_9.log",
+        filters = Seq(new UserFilter("acme\\.com$", filterType = FilterTypes.EXCLUDE))
+      )
+      securityService.getCloudServiceUsage() mustEqual Map("AWS" -> Set("11.11.11.86", "11.11.11.87"))
+    }
+
     "filter multiple kind of filters" in new Context {
       ko
     }.pendingUntilFixed("not implemented yet")
