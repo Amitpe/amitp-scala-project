@@ -1,14 +1,14 @@
 package services
 
-import Types.{CloudServiceName, IP}
 import common.{Filter, FirewallParser}
 import io.CloudServicesCSVProvider
+import services.Types.{CloudServiceName, IP}
 
 import scala.collection.mutable
 import scala.io.Source
 
 class CloudServicesUsageFinder(DNSService: DNSService,
-                               filters: Seq[Filter],
+                               combinedFilter: Filter,
                                pathToFirewallLogFile: String) {
   private val csvReader = new CloudServicesCSVProvider()
   private val parser = new FirewallParser()
@@ -37,18 +37,15 @@ class CloudServicesUsageFinder(DNSService: DNSService,
   }
 
   private def isEntryAllowed(logEntry: LogEntry) = {
-    filters.isEmpty || filters.forall(filter => filter.isAllowed(logEntry))
+    combinedFilter.isAllowed(logEntry)
   }
 
   private def accumulate(logEntry: LogEntry): Unit = {
-    if (filters.isEmpty || filters.exists(filter => filter.isAllowed(logEntry))) {
+    val domain = logEntry.domain.getOrElse(DNSService.getDomainFromIP(logEntry.cloudIp).getOrElse(EMPTY_STRING))
 
-      val domain = logEntry.domain.getOrElse(DNSService.getDomainFromIP(logEntry.cloudIp).getOrElse(EMPTY_STRING))
-
-      domainToServiceName
-        .get(domain)
-        .map(cloudName => addIpToCloud(cloudName, logEntry.userIp))
-    }
+    domainToServiceName
+      .get(domain)
+      .foreach(cloudName => addIpToCloud(cloudName, logEntry.userIp))
   }
 
   def addIpToCloud(cloudName: String, ip: IP): Unit = {
