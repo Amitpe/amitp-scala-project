@@ -60,7 +60,7 @@ class CloudServicesUsageFinder(DNSService: DNSService,
 }
 
 
-case class LogEntry(userIp: String, cloudIp: String, domain: Option[String])
+case class LogEntry(userIp: String, cloudIp: String, domain: Option[String], userName: Option[String])
 
 object Types {
   type CloudServiceName = String

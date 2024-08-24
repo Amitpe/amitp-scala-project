@@ -2,6 +2,8 @@ package common
 
 import services.LogEntry
 
+import scala.util.matching.Regex
+
 trait Parser {
   def parseLogLine(line: String): Option[LogEntry]
 }
@@ -41,9 +43,12 @@ class FirewallParser extends Parser {
     // Extract domain if present
     val domain = parts.find(_.startsWith("DOMAIN=")).map(_.split("=")(1))
 
+    // Extract user if present
+    val user = parts.find(_.startsWith("USER=")).map(_.split("=")(1))
+
     (userIp, cloudIp) match {
       case (Some(userIp), Some(cloudIp)) =>
-        Some(LogEntry(userIp, cloudIp, domain))
+        Some(LogEntry(userIp, cloudIp, domain, user))
       case _ =>
         None
     }

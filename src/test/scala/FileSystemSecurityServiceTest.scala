@@ -1,5 +1,5 @@
 import common.{Filter, FilterTypes}
-import filter.IpFilter
+import filter.{IpFilter, UserFilter}
 import io.DNSDomainProvider
 import org.specs2.mock.Mockito
 import org.specs2.mock.Mockito.{any, mock, theStubbed}
@@ -91,12 +91,20 @@ class FileSystemSecurityServiceTest extends SpecificationWithJUnit with Mockito 
     }
 
     "filter by user - include" in new Context {
-      ko
-    }.pendingUntilFixed("not implemented yet")
+      val securityService = aSecurityServiceFor(
+        "src/test/resources/firewall_test_file_8.log",
+        filters = Seq(new UserFilter("^ra.*" , filterType = FilterTypes.INCLUDE))
+      )
+      securityService.getCloudServiceUsage() mustEqual Map("AWS" -> Set("11.11.11.86"))
+    }
 
     "filter by user - exclude" in new Context {
-      ko
-    }.pendingUntilFixed("not implemented yet")
+      val securityService = aSecurityServiceFor(
+        "src/test/resources/firewall_test_file_8.log",
+        filters = Seq(new UserFilter("acme\\.com$", filterType = FilterTypes.EXCLUDE))
+      )
+      securityService.getCloudServiceUsage() mustEqual Map("AWS" -> Set("11.11.11.86"))
+    }
 
     "filter multiple kind of filters" in new Context {
       ko
