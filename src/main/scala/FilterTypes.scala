@@ -17,7 +17,7 @@ object FilterTypes {
 
 
 class IpFilter(ip: String,
-               range: Option[Int],
+               range: Option[Int] = None,
                filterType: FILTER_TYPE) extends Filter {
 
   private final val NO_RANGE = 32
@@ -29,7 +29,10 @@ class IpFilter(ip: String,
 
   override def isAllowed(logEntry: LogEntry): Boolean = {
     val address = new InetSocketAddress(logEntry.userIp, 0)
-    subnetRule.matches(address)
+    if (filterType == INCLUDE)
+      subnetRule.matches(address)
+    else
+      !subnetRule.matches(address)
   }
 }
 

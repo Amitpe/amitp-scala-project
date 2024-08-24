@@ -58,7 +58,7 @@ class FileSystemSecurityServiceTest extends SpecificationWithJUnit with Mockito 
     "filter by IP - include" in new Context {
       val securityService = aSecurityServiceFor(
         "src/test/resources/firewall_test_file_8.log",
-        filters = Seq(new IpFilter("11.11.11.84", None ,FilterTypes.INCLUDE))
+        filters = Seq(new IpFilter("11.11.11.84" ,filterType = FilterTypes.INCLUDE))
       )
       securityService.getCloudServiceUsage() mustEqual Map("AWS" -> Set("11.11.11.84"))
     }
@@ -72,12 +72,20 @@ class FileSystemSecurityServiceTest extends SpecificationWithJUnit with Mockito 
     }
 
     "filter by IP - exclude" in new Context {
-      ko
-    }.pendingUntilFixed("not implemented yet")
+      val securityService = aSecurityServiceFor(
+        "src/test/resources/firewall_test_file_8.log",
+        filters = Seq(new IpFilter("11.11.11.84" ,filterType = FilterTypes.EXCLUDE))
+      )
+      securityService.getCloudServiceUsage() mustEqual Map("AWS" -> Set("11.11.11.85", "11.11.11.86"))
+    }
 
     "filter by IP - exclude with range" in new Context {
-      ko
-    }.pendingUntilFixed("not implemented yet")
+      val securityService = aSecurityServiceFor(
+        "src/test/resources/firewall_test_file_8.log",
+        filters = Seq(new IpFilter("11.11.11.84" , range = Some(32), filterType = FilterTypes.EXCLUDE))
+      )
+      securityService.getCloudServiceUsage() mustEqual Map("AWS" -> Set("11.11.11.85", "11.11.11.86"))
+    }
 
     "filter by user - include" in new Context {
       ko
