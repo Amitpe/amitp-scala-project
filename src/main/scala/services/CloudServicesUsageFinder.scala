@@ -37,7 +37,7 @@ class CloudServicesUsageFinder(DNSService: DNSService,
   }
 
   private def isEntryAllowed(logEntry: LogEntry) = {
-    filters.isEmpty || filters.exists(filter => filter.isAllowed(logEntry))
+    filters.isEmpty || filters.forall(filter => filter.isAllowed(logEntry))
   }
 
   private def accumulate(logEntry: LogEntry): Unit = {
