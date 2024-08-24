@@ -16,7 +16,7 @@ class IpFilter(ips: Seq[String],
     new IpSubnetFilterRule(ip, range.getOrElse(NO_RANGE), filterType match {
       case INCLUDE => IpFilterRuleType.ACCEPT
       case EXCLUDE => IpFilterRuleType.REJECT
-      case _ => throw new RuntimeException("Invalid filter type")
+      case _ => throw InvalidFilterException("Invalid filter type")
     })
   }
 
@@ -36,3 +36,5 @@ object IpFilter {
             range: Option[Int] = None,
             filterType: FILTER_TYPE) = new IpFilter(Seq(ip), range, filterType)
 }
+
+case class InvalidFilterException(ip: String) extends RuntimeException(s"Invalid IP: $ip")

@@ -137,6 +137,10 @@ class FileSystemSecurityServiceTest extends SpecificationWithJUnit with Mockito 
       securityService.getCloudServiceUsage() mustEqual Map("AWS" -> Set("11.11.11.87", "11.11.11.89"))
     }
 
+//    "filter by IP should not accept invalid filters" in new Context {
+//
+//    }
+
   }
 
 }
