@@ -1,4 +1,7 @@
+package services
+
 import common.LruCache
+import io.DNSDomainProvider
 
 trait DNSService {
   def getDomainFromIP(ip: String): Option[String]

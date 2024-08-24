@@ -1,3 +1,7 @@
+package common
+
+import services.LogEntry
+
 trait Parser {
   def parseLogLine(line: String): Option[LogEntry]
 }

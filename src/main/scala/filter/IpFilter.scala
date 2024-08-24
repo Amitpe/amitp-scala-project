@@ -1,20 +1,11 @@
-import FilterTypes.{EXCLUDE, FILTER_TYPE, INCLUDE}
+package filter
+
+import common.Filter
+import common.FilterTypes.{EXCLUDE, FILTER_TYPE, INCLUDE}
 import io.netty.handler.ipfilter.{IpFilterRuleType, IpSubnetFilterRule}
+import services.LogEntry
 
 import java.net.InetSocketAddress
-
-trait Filter {
-  def isAllowed(logEntry: LogEntry): Boolean // true - allow
-}
-
-object FilterTypes {
-  sealed trait FILTER_TYPE
-
-  case object INCLUDE extends FILTER_TYPE
-
-  case object EXCLUDE extends FILTER_TYPE
-}
-
 
 class IpFilter(ip: String,
                range: Option[Int] = None,
@@ -35,6 +26,3 @@ class IpFilter(ip: String,
       !subnetRule.matches(address)
   }
 }
-
-
-

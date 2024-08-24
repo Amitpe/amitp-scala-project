@@ -1,6 +1,8 @@
 import FileSystemSecurityService.{DEFAULT_CACHE_SIZE, DEFAULT_DNS_DOMAIN_PROVIDER, DEFAULT_EXPIRE_AFTER_WRITE_MINUTES, DEFAULT_FILTERS, DEFAULT_PATH_TO_FIREWALL_LOG_FILE}
-import Types.{CloudServiceName, IP}
-import common.LruCache
+import common.{Filter, LruCache}
+import io.{DNSDomainProvider, JavaInetDNSDomainProvider}
+import services.{CachingDNSService, CloudServicesUsageFinder}
+import services.Types.{CloudServiceName, IP}
 
 import scala.collection.mutable
 

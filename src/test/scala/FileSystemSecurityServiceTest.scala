@@ -1,3 +1,6 @@
+import common.{Filter, FilterTypes}
+import filter.IpFilter
+import io.DNSDomainProvider
 import org.specs2.mock.Mockito
 import org.specs2.mock.Mockito.{any, mock, theStubbed}
 import org.specs2.mutable.SpecificationWithJUnit

@@ -1,4 +1,7 @@
+package services
+
 import Types.{CloudServiceName, IP}
+import common.{Filter, FirewallParser}
 import io.CloudServicesCSVProvider
 
 import scala.collection.mutable
