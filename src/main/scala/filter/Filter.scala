@@ -1,6 +1,6 @@
 package common
 
-import services.LogEntry
+import api.LogEntry
 
 trait Filter {
   def isAllowed(logEntry: LogEntry): Boolean // true - allow

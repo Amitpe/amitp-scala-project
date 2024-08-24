@@ -2,7 +2,7 @@ package filter
 
 import common.Filter
 import common.FilterTypes.{EXCLUDE, FILTER_TYPE, INCLUDE}
-import services.LogEntry
+import api.LogEntry
 
 class UserFilter(regex: String, filterType: FILTER_TYPE) extends Filter {
 

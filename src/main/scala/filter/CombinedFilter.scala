@@ -1,7 +1,7 @@
 package filter
 
 import common.Filter
-import services.LogEntry
+import api.LogEntry
 
 class CombinedFilter(filters: Seq[Filter]) extends Filter {
 

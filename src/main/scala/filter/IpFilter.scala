@@ -3,7 +3,7 @@ package filter
 import common.Filter
 import common.FilterTypes.{EXCLUDE, FILTER_TYPE, INCLUDE}
 import io.netty.handler.ipfilter.{IpFilterRuleType, IpSubnetFilterRule}
-import services.LogEntry
+import api.LogEntry
 
 import java.net.InetSocketAddress
 

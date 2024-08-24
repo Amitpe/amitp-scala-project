@@ -1,6 +1,6 @@
 package common
 
-import services.LogEntry
+import api.LogEntry
 
 import scala.util.matching.Regex
 

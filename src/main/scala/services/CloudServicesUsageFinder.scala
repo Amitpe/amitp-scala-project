@@ -1,8 +1,9 @@
 package services
 
+import api.LogEntry
+import api.Types.{CloudServiceName, IP}
 import common.{Filter, FirewallParser}
 import io.CloudServicesCSVProvider
-import services.Types.{CloudServiceName, IP}
 
 import scala.collection.mutable
 import scala.io.Source
@@ -56,13 +57,6 @@ class CloudServicesUsageFinder(DNSService: DNSService,
 
 }
 
-
-case class LogEntry(userIp: String, cloudIp: String, domain: Option[String], userName: Option[String])
-
-object Types {
-  type CloudServiceName = String
-  type IP = String
-}
 
 
 

@@ -2,7 +2,7 @@ import FileSystemSecurityService._
 import common.{Filter, LruCache}
 import filter.CombinedFilter
 import io.{DNSDomainProvider, JavaInetDNSDomainProvider}
-import services.Types.{CloudServiceName, IP}
+import api.Types.{CloudServiceName, IP}
 import services.{CachingDNSService, CloudServicesUsageFinder}
 
 import scala.collection.mutable
