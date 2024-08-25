@@ -10,6 +10,8 @@ trait Cache[K <: AnyRef, V <: AnyRef] {
 
 class LruCache[K <: AnyRef, V <: AnyRef](maxNumberOfEntries: Long, expireAfterWriteMinutes: Long) extends Cache[K, V] {
 
+
+  // TODO: make the cache computation async so it won't block the app. It means that the value should be Future[V] instead of V
   private val cache = CacheBuilder.newBuilder()
     .maximumSize(maxNumberOfEntries)
     .expireAfterWrite(expireAfterWriteMinutes, TimeUnit.MINUTES)
