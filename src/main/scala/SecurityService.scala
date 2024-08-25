@@ -1,8 +1,8 @@
 import FileSystemSecurityService._
+import api.Types.{CloudServiceName, IP}
 import common.{Filter, FirewallParser, LruCache, Parser}
 import filter.CombinedFilter
 import io.{DNSDomainProvider, FileReader, JavaInetDNSDomainProvider, LogFileReader}
-import api.Types.{CloudServiceName, IP}
 import services.{CachingDNSService, CloudServicesUsageFinder}
 
 import scala.collection.mutable
@@ -43,7 +43,7 @@ class FileSystemSecurityService(
 
   private def buildCloudServicesUsageFinder(): CloudServicesUsageFinder = {
     val DNSDomainProvider = maybeDNSDomainProvider.getOrElse(DEFAULT_DNS_DOMAIN_PROVIDER)
-    val cache = new LruCache[String, Option[String]](maxSize = DEFAULT_CACHE_SIZE, expireAfterWriteMinutes = DEFAULT_EXPIRE_AFTER_WRITE_MINUTES)
+    val cache = LruCache.aCacheForMediumCompany[String, Option[String]]()
     val DNSService = new CachingDNSService(DNSDomainProvider, cache)
     val filters = maybeFilters.getOrElse(DEFAULT_FILTERS)
     val combinedFilter = new CombinedFilter(filters)
@@ -57,7 +57,5 @@ class FileSystemSecurityService(
 object FileSystemSecurityService {
   private val DEFAULT_PATH_TO_FIREWALL_LOG_FILE = "src/main/resources/firewall.log"
   private val DEFAULT_DNS_DOMAIN_PROVIDER = new JavaInetDNSDomainProvider
-  private val DEFAULT_CACHE_SIZE = 1000
-  private val DEFAULT_EXPIRE_AFTER_WRITE_MINUTES = 5
   private val DEFAULT_FILTERS = Seq.empty
 }
