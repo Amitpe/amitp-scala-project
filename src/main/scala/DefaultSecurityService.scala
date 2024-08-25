@@ -1,4 +1,4 @@
-import SequentialSecurityService.{DEFAULT_DNS_DOMAIN_PROVIDER, DEFAULT_FILTERS, DEFAULT_PATH_TO_FIREWALL_LOG_FILE}
+import DefaultSecurityService.{DEFAULT_DNS_DOMAIN_PROVIDER, DEFAULT_FILTERS, DEFAULT_PATH_TO_FIREWALL_LOG_FILE}
 import api.Types.{CloudServiceName, IP}
 import common.{Filter, FirewallParser, LruCache, Parser}
 import filter.CombinedFilter
@@ -7,13 +7,13 @@ import services.{CachingDNSService, CloudServicesUsageFinder}
 
 import scala.collection.mutable
 
-class SequentialSecurityService(
-                                 maybePathToFirewallLogFile: Option[String] = None,
-                                 maybeParser: Option[Parser] = None,
-                                 maybeDNSDomainProvider: Option[DNSDomainProvider] = None,
-                                 maybeFilters: Option[Seq[Filter]] = None,
-                                 maybeFileReader: Option[FileReader] = None
-                               ) extends SecurityService {
+class DefaultSecurityService(
+                              maybePathToFirewallLogFile: Option[String] = None,
+                              maybeParser: Option[Parser] = None,
+                              maybeDNSDomainProvider: Option[DNSDomainProvider] = None,
+                              maybeFilters: Option[Seq[Filter]] = None,
+                              maybeFileReader: Option[FileReader] = None
+                            ) extends SecurityService {
   private val cloudServicesUsageFinder = buildCloudServicesUsageFinder()
 
   override def getCloudServiceUsage(): mutable.Map[CloudServiceName, mutable.Set[IP]] = {
@@ -37,7 +37,7 @@ class SequentialSecurityService(
   }
 }
 
-object SequentialSecurityService {
+object DefaultSecurityService {
   private val DEFAULT_PATH_TO_FIREWALL_LOG_FILE = "src/main/resources/firewall.log"
   private val DEFAULT_DNS_DOMAIN_PROVIDER = new JavaInetDNSDomainProvider
   private val DEFAULT_FILTERS = Seq.empty

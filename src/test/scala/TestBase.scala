@@ -45,7 +45,7 @@ class TestBase extends SpecificationWithJUnit with Mockito {
     def aSecurityServiceFor(firewallPath: Option[String] = None,
                             parser: Parser = parserMock,
                             filters: Seq[Filter] = Nil): SecurityService =
-      new SequentialSecurityService(
+      new DefaultSecurityService(
         maybePathToFirewallLogFile = None,
         maybeParser = Some(parser),
         maybeDNSDomainProvider = Some(DNSProviderMock),
