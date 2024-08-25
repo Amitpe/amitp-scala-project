@@ -9,9 +9,9 @@ trait FileReader {
 }
 
 class LogFileReader(path: String) extends FileReader {
+  val bufferedIterator = Source.fromFile(path)
 
   override def getLines(): Iterator[String] = {
-    val bufferedIterator = Source.fromFile(path)
     bufferedIterator.getLines()
   }
 

@@ -2,11 +2,11 @@ import api.Types.{CloudServiceName, IP}
 import common.{Filter, FirewallParser, LruCache, Parser}
 import filter.CombinedFilter
 import io.{DNSDomainProvider, FileReader, JavaInetDNSDomainProvider, LogFileReader}
-import services.{CachingDNSService, SequentialCloudServicesUsageFinder}
+import services.{CachingDNSService, DefaultCloudServicesUsageFinder}
 
 import scala.collection.mutable
 
-class DefaultSecurityService(cloudServicesUsageFinder: SequentialCloudServicesUsageFinder) extends SecurityService {
+class DefaultSecurityService(cloudServicesUsageFinder: DefaultCloudServicesUsageFinder) extends SecurityService {
   override def getCloudServiceUsage(): mutable.Map[CloudServiceName, mutable.Set[IP]] = {
     cloudServicesUsageFinder.findCloudServicesUsages()
   }
@@ -27,7 +27,7 @@ object DefaultSecurityService {
             maybeFilters: Option[Seq[Filter]] = None,
             maybeFileReader: Option[FileReader] = None): DefaultSecurityService = {
 
-    def buildCloudServicesUsageFinder(): SequentialCloudServicesUsageFinder = {
+    def buildCloudServicesUsageFinder(): DefaultCloudServicesUsageFinder = {
       val DNSDomainProvider = maybeDNSDomainProvider.getOrElse(DEFAULT_DNS_DOMAIN_PROVIDER)
       val cache = LruCache.aCacheForMediumCompany[String, Option[String]]()
       val DNSService = new CachingDNSService(DNSDomainProvider, cache)
@@ -36,7 +36,7 @@ object DefaultSecurityService {
       val parser = maybeParser.getOrElse(new FirewallParser())
       val fileReader = maybeFileReader.getOrElse(new LogFileReader(maybePathToFirewallLogFile.getOrElse(DEFAULT_PATH_TO_FIREWALL_LOG_FILE)))
 
-      new SequentialCloudServicesUsageFinder(DNSService, combinedFilter, parser, fileReader)
+      new DefaultCloudServicesUsageFinder(DNSService, combinedFilter, parser, fileReader)
     }
 
     val cloudServicesUsageFinder = buildCloudServicesUsageFinder()
