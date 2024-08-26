@@ -18,9 +18,9 @@ class DefaultCloudServicesUsageFinder(logEntriesHandler: LogEntriesHandler,
     try {
       val linesBuffer = fileReader.getLines()
 
-      val cloudNameToIpsTasks = extractCloudNamesToIpsAsync(linesBuffer)
+      val cloudNamesToIpsTasks = extractCloudNamesToIpsAsync(linesBuffer)
 
-      val cloudNamesToIpsTask = Future.sequence(cloudNameToIpsTasks)
+      val cloudNamesToIpsTask = Future.sequence(cloudNamesToIpsTasks)
 
       val cloudNamesToIps = Async.waitForCompletion(cloudNamesToIpsTask)
 
