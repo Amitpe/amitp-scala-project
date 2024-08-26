@@ -1,11 +1,11 @@
 package services
 
 import api.Types.{CloudServiceName, IP}
+import common.Async
 import io.FileReader
 
 import java.util.concurrent.{ExecutorService, Executors, TimeUnit}
-import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutorService, Future}
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService, Future}
 import scala.language.postfixOps
 
 class DefaultCloudServicesUsageFinder(logEntriesHandler: LogEntriesHandler,
@@ -17,28 +17,33 @@ class DefaultCloudServicesUsageFinder(logEntriesHandler: LogEntriesHandler,
   def findCloudServicesUsages(): Map[CloudServiceName, Set[IP]] =
     try {
       val linesBuffer = fileReader.getLines()
-      val domainsToIpsFutures = linesBuffer.map { line =>
-        Future {
-          logEntriesHandler.extractCloudAndUserIp(line)
-        }
-      }
-      val domainsToIpsFuture = Future.sequence(domainsToIpsFutures)
-      val domainsToIps: Iterator[Option[(CloudServiceName, IP)]] = waitForTaskCompletion(domainsToIpsFuture)
 
-      val result = domainsToIps.foldLeft(Map.empty[String, Set[String]]) {
-        case (acc, Some((key, value))) =>
-          acc.updated(key, acc.getOrElse(key, Set.empty) + value)
-        case (acc, None) =>
-          acc // Skip None values
-      }
+      val cloudNameToIpsTasks = extractCloudNamesToIpsAsync(linesBuffer)
 
-      result
+      val cloudNamesToIpsTask = Future.sequence(cloudNameToIpsTasks)
+
+      val cloudNamesToIps = Async.waitForCompletion(cloudNamesToIpsTask)
+
+      buildResultMap(cloudNamesToIps)
     } finally {
       releaseResources()
     }
 
-  private def waitForTaskCompletion[T](aSingleFuture: Future[Iterator[T]]): Iterator[T] = {
-    Await.result(aSingleFuture, 5.minutes)
+  private def extractCloudNamesToIpsAsync(linesBuffer: Iterator[CloudServiceName]) = {
+    linesBuffer.map { line =>
+      Async.task {
+        logEntriesHandler.extractCloudAndUserIp(line)
+      }
+    }
+  }
+
+  private def buildResultMap(domainsToIps: Iterator[Option[(CloudServiceName, IP)]]) = {
+    domainsToIps.foldLeft(Map.empty[CloudServiceName, Set[CloudServiceName]]) {
+      case (acc, Some((key, value))) =>
+        acc.updated(key, acc.getOrElse(key, Set.empty) + value)
+      case (acc, None) =>
+        acc // Skip None values
+    }
   }
 
   private def releaseResources(): Unit = {
