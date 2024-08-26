@@ -18,6 +18,22 @@ class SecurityServiceE2E extends TestBase {
       )
       securityService.getCloudServiceUsage() mustEqual Map("AWS" -> Set("11.11.11.89"))
     }
+
+    "Read the entire file" in new Context {
+      val startTime = System.nanoTime()
+
+      val securityService = aSecurityServiceFor(
+        Some("src/main/resources/firewall.log"),
+        parser = new FirewallParser()
+      )
+      givenReverseDNSLookupIs("aws.amazon.com")
+      securityService.getCloudServiceUsage()
+
+      val endTime = System.nanoTime()
+      val duration = (endTime - startTime) / 1e6 // Convert nanoseconds to milliseconds
+
+      println(s"Time taken: ${duration} MS")
+    }
   }
 
   trait Context extends BaseContext

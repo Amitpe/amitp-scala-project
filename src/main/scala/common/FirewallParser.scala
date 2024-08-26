@@ -33,6 +33,7 @@ class FirewallParser extends Parser {
     line.split("\\s+").collect {
       case part if part.contains("=") => part.split("=") match {
         case Array(key, value) => key -> value
+        case _ => "" -> ""
       }
     }.toMap
   }

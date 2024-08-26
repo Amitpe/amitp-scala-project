@@ -4,15 +4,18 @@ import api.Types.{CloudServiceName, IP}
 import common.Async
 import io.FileReader
 
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.{ExecutorService, Executors, TimeUnit}
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService, Future}
 import scala.language.postfixOps
 
+
 class DefaultCloudServicesUsageFinder(logEntriesHandler: LogEntriesHandler,
                                       fileReader: FileReader,
-                                      concurrency: Int = Runtime.getRuntime.availableProcessors()) extends CloudServicesUsageFinder {
+                                      concurrency: Int = 100) extends CloudServicesUsageFinder {
 
   private implicit val ec: ExecutionContextExecutorService = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(concurrency))
+  private val counter = new AtomicInteger(0)
 
   def findCloudServicesUsages(): Map[CloudServiceName, Set[IP]] =
     try {
@@ -24,6 +27,8 @@ class DefaultCloudServicesUsageFinder(logEntriesHandler: LogEntriesHandler,
 
       val cloudNamesToIps = Async.waitForCompletion(cloudNamesToIpsTask)
 
+      println(counter)
+
       buildResultMap(cloudNamesToIps)
     } finally {
       releaseResources()
@@ -31,11 +36,32 @@ class DefaultCloudServicesUsageFinder(logEntriesHandler: LogEntriesHandler,
 
   private def extractCloudNamesToIpsAsync(linesBuffer: Iterator[String]) = {
     linesBuffer.map { line =>
-      Async.task {
+      Future {
+//        Thread.sleep(100)
+        counter.incrementAndGet()
         logEntriesHandler.extractCloudAndUserIp(line)
       }
     }
   }
+
+  //  def extractCloudNamesToIpsAsync(linesBuffer: Iterator[String])(implicit ec: ExecutionContext): Iterator[Future[Option[(CloudServiceName, IP)]]] = {
+  //    // Use takeWhile to ensure we only create Futures while there are lines left to process
+  //    Iterator.continually {
+  //      if (linesBuffer.hasNext) {
+  //        Future {
+  //          val line = if (linesBuffer.hasNext) Try(linesBuffer.next()).getOrElse("") else ""
+  //
+  //          val threadName = Thread.currentThread().getName
+  //          println(s"Processing on thread: $threadName")
+  //
+  //          counter.incrementAndGet()
+  //          logEntriesHandler.extractCloudAndUserIp(line)
+  //        }
+  //      } else {
+  //        Future.successful(None)
+  //      }
+  //    }.takeWhile(_ => linesBuffer.hasNext)
+  //  }
 
   private def buildResultMap(domainsToIps: Iterator[Option[(CloudServiceName, IP)]]) = {
     domainsToIps.foldLeft(Map.empty[CloudServiceName, Set[CloudServiceName]]) {
