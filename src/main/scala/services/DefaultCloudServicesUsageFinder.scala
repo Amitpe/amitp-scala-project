@@ -29,7 +29,7 @@ class DefaultCloudServicesUsageFinder(logEntriesHandler: LogEntriesHandler,
       releaseResources()
     }
 
-  private def extractCloudNamesToIpsAsync(linesBuffer: Iterator[CloudServiceName]) = {
+  private def extractCloudNamesToIpsAsync(linesBuffer: Iterator[String]) = {
     linesBuffer.map { line =>
       Async.task {
         logEntriesHandler.extractCloudAndUserIp(line)
