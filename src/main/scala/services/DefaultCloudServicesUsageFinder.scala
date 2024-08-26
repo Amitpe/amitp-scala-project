@@ -9,18 +9,17 @@ import java.util.concurrent.{ExecutorService, Executors, TimeUnit}
 import scala.collection.concurrent.TrieMap
 import scala.collection.mutable
 import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutorService, Future}
 import scala.language.postfixOps
-import scala.util.{Failure, Success}
 
 
 class DefaultCloudServicesUsageFinder(DNSService: DNSService,
                                       combinedFilter: Filter,
                                       parser: Parser,
                                       fileReader: FileReader,
-                                      concurrency: Int = Runtime.getRuntime.availableProcessors()) {
+                                      concurrency: Int = Runtime.getRuntime.availableProcessors()) extends CloudServicesUsageFinder {
 
-  private implicit val ec = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(concurrency))
+  private implicit val ec: ExecutionContextExecutorService = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(concurrency))
 
   private val csvReader = new CloudServicesCSVProvider()
   private val domainToServiceName: Map[String, String] = csvReader.provideCloudServicesMap()
@@ -28,34 +27,29 @@ class DefaultCloudServicesUsageFinder(DNSService: DNSService,
   private val cloudServicesToUniqueIps: mutable.Map[String, mutable.Set[String]] = new TrieMap[String, mutable.Set[String]]()
   private val EMPTY_STRING = ""
 
-  def findCloudServicesUsages(): mutable.Map[CloudServiceName, mutable.Set[IP]] = {
+  def findCloudServicesUsages(): mutable.Map[CloudServiceName, mutable.Set[IP]] =
     try {
       val linesBuffer = fileReader.getLines()
 
-      val tasks = handleLogLinesAsync(linesBuffer)
+      val tasks = parseAndAccumulateAsync(linesBuffer)
 
-      val aSingleFuture = Future.sequence(tasks)
+      val aSingleTask = Future.sequence(tasks)
 
-      releaseResourcesWhenTasksAreCompleted(aSingleFuture)
-
-      waitForTaskCompletion(aSingleFuture)
+      waitForTaskCompletion(aSingleTask)
 
       cloudServicesToUniqueIps
-
     } finally {
       releaseResources()
     }
-  }
 
-  private def handleLogLinesAsync(linesBuffer: Iterator[CloudServiceName]) = {
+  private def parseAndAccumulateAsync(linesBuffer: Iterator[CloudServiceName]) =
     linesBuffer.map { line =>
       Future {
         handleLogLine(line)
       }
     }
-  }
 
-  private def handleLogLine(line: CloudServiceName): Unit = {
+  private def handleLogLine(line: String): Unit = {
     if (line != EMPTY_STRING) {
       parser.parseLogLine(line)
         .filter(isEntryAllowed)
@@ -68,9 +62,9 @@ class DefaultCloudServicesUsageFinder(DNSService: DNSService,
   }
 
   private def accumulate(logEntry: LogEntry): Unit = {
-    val domain = logEntry.domain.getOrElse(
+    val domain = logEntry.domain.getOrElse {
       DNSService.getDomainFromIP(logEntry.cloudIp).getOrElse(EMPTY_STRING)
-    )
+    }
 
     domainToServiceName
       .get(domain)
@@ -82,21 +76,11 @@ class DefaultCloudServicesUsageFinder(DNSService: DNSService,
     ips += ip
   }
 
-  private def releaseResourcesWhenTasksAreCompleted(allFutures: Future[Iterator[Unit]]): Unit = {
-    allFutures.onComplete {
-      case Success(_) => fileReader.close()
-      case Failure(exception) =>
-        fileReader.close()
-        throw exception
-    }
-  }
-
   private def waitForTaskCompletion(aSingleFuture: Future[Iterator[Unit]]) = {
     Await.result(aSingleFuture, 5.minutes)
   }
 
   private def releaseResources(): Unit = {
-    fileReader.close()
     ec match {
       case executor: ExecutorService =>
         executor.shutdown()

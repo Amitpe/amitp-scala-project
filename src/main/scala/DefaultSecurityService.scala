@@ -2,11 +2,11 @@ import api.Types.{CloudServiceName, IP}
 import common.{Filter, FirewallParser, LruCache, Parser}
 import filter.CombinedFilter
 import io.{DNSDomainProvider, FileReader, JavaInetDNSDomainProvider, LogFileReader}
-import services.{CachingDNSService, DefaultCloudServicesUsageFinder}
+import services.{CachingDNSService, CloudServicesUsageFinder, DefaultCloudServicesUsageFinder}
 
 import scala.collection.mutable
 
-class DefaultSecurityService(cloudServicesUsageFinder: DefaultCloudServicesUsageFinder) extends SecurityService {
+class DefaultSecurityService(cloudServicesUsageFinder: CloudServicesUsageFinder) extends SecurityService {
   override def getCloudServiceUsage(): mutable.Map[CloudServiceName, mutable.Set[IP]] = {
     cloudServicesUsageFinder.findCloudServicesUsages()
   }
