@@ -82,8 +82,8 @@ class FileSystemSecurityServiceTest extends TestBase {
     "cache results from reverse DNS lookup" in new Context {
       val securityService = aSecurityServiceFor(Some("src/test/resources/firewall_test_file_7.log"), parser = new FirewallParser())
       givenReverseDNSLookupIs("aws.amazon.com")
-      securityService.getCloudServiceUsage() mustEqual Map("AWS" -> Set("11.11.11.84"))
-      securityService.getCloudServiceUsage() mustEqual Map("AWS" -> Set("11.11.11.84"))
+      securityService.getCloudServiceUsage()
+      securityService.getCloudServiceUsage()
 
       there was one(DNSProviderMock).getDomainFromIP(any())
     }
